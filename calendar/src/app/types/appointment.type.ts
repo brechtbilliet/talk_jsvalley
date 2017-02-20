@@ -1,6 +1,6 @@
 export class Appointment {
-    public id: string;
+    public $key: string;
 
-    constructor(public date: Date, public description: string) {
+    constructor(public date: Date|string, public description: string) {
     }
 }

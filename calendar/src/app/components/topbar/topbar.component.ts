@@ -4,7 +4,7 @@ import { VIEW_MODE } from '../../constants';
 @Component({
     selector: 'topbar',
     template: `<md-toolbar color="primary">
-    <span>{{calendarLabel}}</span>
+    <span>Reactive calendar</span>
     <md-toolbar-row>
         <button md-fab (click)="previous.emit()" color="primary">
             <md-icon>chevron_left</md-icon>
@@ -27,8 +27,6 @@ import { VIEW_MODE } from '../../constants';
 `,
 })
 export class TopbarComponent {
-    @Input() calendarLabel:string;
-
     @Output() previous = new EventEmitter();
     @Output() next = new EventEmitter();
     @Output() setViewMode = new EventEmitter<string>();

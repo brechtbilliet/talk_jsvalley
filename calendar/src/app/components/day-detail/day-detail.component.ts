@@ -1,15 +1,16 @@
 import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { Appointment } from '../../types/appointment.type';
+import * as moment from 'moment';
 @Component({
     selector: 'day-detail',
     template: `<md-card *ngIf="date">
-    {{date | date: "d/M"}}&nbsp;
+    {{date | date: "dd/MM/yyyy"}}&nbsp;
     <md-card-content>
         <table>
-            <tr *ngFor="let appointment of appointments"  [mdTooltipPosition]="'before'" mdTooltip="{{appointment.description}}">
+            <tr *ngFor="let appointment of appointments;"  [mdTooltipPosition]="'before'" mdTooltip="{{appointment.description}}">
                 <td>{{appointment.date|date: "hh:mm"}}</td>
                 <td>
-                    <button md-mini-fab color="warn">
+                    <button md-mini-fab color="warn" (click)="removeAppointment.emit(appointment.$key)">
                         <md-icon>delete</md-icon>
                     </button>
                 </td>
@@ -34,7 +35,7 @@ export class DayDetailComponent {
 
 
     add(): void{
-        this.addAppointment.emit(new Date());
+        this.addAppointment.emit(moment(this.date).toDate());
     }
 
 }

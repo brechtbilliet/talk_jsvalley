@@ -8,11 +8,12 @@ import { DayWithAppointments } from '../../types/day-with-appointments.type';
 @Component({
     selector: 'month-view',
     template: `
+        <h2>{{month + 1}}/{{year}}</h2>
         <table>
             <tr *ngFor="let week of (weeks$|async)">
                 <td  *ngFor="let day of week">
                     <day-detail
-                            (addAppointment)="addAppointment.emit(Date)"
+                            (addAppointment)="addAppointment.emit($event)"
                             (removeAppointment)="removeAppointment.emit($event)"
                             (updateAppointment)="updateAppointment.emit($event)"
                             [date]="day?.date"
@@ -35,7 +36,6 @@ export class MonthViewComponent implements OnChanges {
     month$ = new ReplaySubject<number>();
     year$ = new ReplaySubject<number>();
     appointments$ = new ReplaySubject<Array<Appointment>>();
-
 
     weeks$ = Observable.combineLatest([this.month$, this.year$, this.appointments$],
         (month: number, year: number, appointments: Array<Appointment>) => {
@@ -60,13 +60,13 @@ export class MonthViewComponent implements OnChanges {
         });
 
     ngOnChanges(simpleChanges: any): void {
-        if (simpleChanges.month && this.month) {
+        if (simpleChanges.month && this.month !== null) {
             this.month$.next(this.month);
         }
-        if (simpleChanges.year && this.year) {
+        if (simpleChanges.year && this.year !== null) {
             this.year$.next(this.year);
         }
-        if (simpleChanges.appointments && this.appointments) {
+        if (simpleChanges.appointments && this.appointments !== null) {
             this.appointments$.next(this.appointments);
         }
     }
