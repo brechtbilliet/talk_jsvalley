@@ -63,7 +63,6 @@ export class AppComponent {
     private currentDateM$ = this.viewMode$.flatMap((viewMode: string) => {
         let dateM = moment();
         return this.navigation$
-            .scan((val, acc) => val + acc)
             .map((action: number) => {
                 switch (viewMode) {
                     case VIEW_MODE.MONTH:
@@ -103,7 +102,6 @@ export class AppComponent {
         }).publishReplay(1).refCount();
 
     constructor(private af: AngularFire) {
-        af.auth.login({email: 'johndoe@test.com', password: 'testtest'});
     }
 
     private filterByTerm(appointment: Appointment, term: string): boolean {
