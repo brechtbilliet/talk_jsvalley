@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, EventEmitter, Output } from '@angular/core';
-import { ReplaySubject, Observable } from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { Appointment } from '../../types/appointment.type';
@@ -8,9 +7,9 @@ import { DayWithAppointments } from '../../types/day-with-appointments.type';
 @Component({
     selector: 'month-view',
     template: `
-        <h2>{{month + 1}}/{{year}}</h2>
+        <h2>Month: {{month + 1}}/{{year}}</h2>
         <table>
-            <tr *ngFor="let week of (weeks$|async)">
+            <tr *ngFor="let week of weeks">
                 <td  *ngFor="let day of week">
                     <day-detail
                             (addAppointment)="addAppointment.emit($event)"
@@ -33,41 +32,33 @@ export class MonthViewComponent implements OnChanges {
     @Output() public updateAppointment = new EventEmitter<Appointment>();
     @Output() public removeAppointment = new EventEmitter<Appointment>();
 
-    month$ = new ReplaySubject<number>();
-    year$ = new ReplaySubject<number>();
-    appointments$ = new ReplaySubject<Array<Appointment>>();
-
-    weeks$ = Observable.combineLatest([this.month$, this.year$, this.appointments$],
-        (month: number, year: number, appointments: Array<Appointment>) => {
-            const dayOne = moment().year(year).month(month).date(1);
-            const days = Array.from({length: dayOne.daysInMonth()}, (value, key) => key + 1);
-            let res = _.groupBy(days, ((day: number) => moment().year(year).month(month).date(day).week()));
-            return Object.keys(res)
-                .map((key) => res[key])
-                .map((days: Array<number>) => {
-                    let week: Array<DayWithAppointments> = [null, null, null, null, null, null, null];
-                    days.forEach(day => {
-                        let date = moment().year(year).month(month).date(day).toDate();
-                        week[moment().year(year).month(month).date(day).weekday()] = {
-                            date: date,
-                            appointments: appointments.filter((appointment: Appointment) => {
-                                return moment().year(year).month(month).date(day).date() === moment(appointment.date).date();
-                            })
-                        };
-                    });
-                    return week;
-                });
-        });
+    weeks: Array<Array<DayWithAppointments>>;
 
     ngOnChanges(simpleChanges: any): void {
-        if (simpleChanges.month && this.month !== null) {
-            this.month$.next(this.month);
+        if (this.month && this.year) {
+            this.weeks = this.calculateMonthWithAppointments(this.month, this.year, this.appointments || []);
         }
-        if (simpleChanges.year && this.year !== null) {
-            this.year$.next(this.year);
-        }
-        if (simpleChanges.appointments && this.appointments !== null) {
-            this.appointments$.next(this.appointments);
-        }
+    }
+
+    private calculateMonthWithAppointments(month: number, year: number, appointments: Array<Appointment>): Array<Array<DayWithAppointments>> {
+        console.log(appointments);
+        const dayOneM = moment().year(year).month(month).date(1);
+        const days = Array.from({length: dayOneM.daysInMonth()}, (value, key) => key + 1);
+        let res = _.groupBy(days, ((day: number) => moment().year(year).month(month).date(day).week()));
+        return Object.keys(res)
+            .map((key) => res[key])
+            .map((days: Array<number>) => {
+                let week: Array<DayWithAppointments> = Array.from({length: 7}, () => null);
+                days.forEach((day) => {
+                    let dateM = moment().year(year).month(month).date(day);
+                    week[dateM.weekday()] = {
+                        date: dateM.toDate(),
+                        appointments: appointments.filter((appointment: Appointment) => {
+                            return dateM.date() === moment(appointment.date).date();
+                        })
+                    };
+                });
+                return week;
+            });
     }
 }

@@ -3,6 +3,7 @@ import { Appointment } from '../../types/appointment.type';
 @Component({
     selector: 'day-view',
     template: `
+        <h2>Day: {{date|date:"dd/MM/yyyy"}}</h2>
         <day-detail
                 (addAppointment)="addAppointment.emit($event)"
                 (removeAppointment)="removeAppointment.emit($event)"
@@ -13,15 +14,11 @@ import { Appointment } from '../../types/appointment.type';
         
 `
 })
-export class DayViewComponent implements OnChanges {
+export class DayViewComponent {
     @Input() date: Date;
     @Input() appointments: Array<Appointment>;
 
     @Output() public addAppointment = new EventEmitter<Date>();
     @Output() public updateAppointment = new EventEmitter<Appointment>();
     @Output() public removeAppointment = new EventEmitter<Appointment>();
-
-    ngOnChanges(): void {
-
-    }
 }

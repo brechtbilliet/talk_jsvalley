@@ -8,7 +8,7 @@ import * as moment from 'moment';
     <md-card-content>
         <table>
             <tr *ngFor="let appointment of appointments;"  [mdTooltipPosition]="'before'" mdTooltip="{{appointment.description}}">
-                <td>{{appointment.date|date: "hh:mm"}}</td>
+                <td (click)="editMode = true">{{appointment.date|date: "hh:mm"}}</td>
                 <td>
                     <button md-mini-fab color="warn" (click)="removeAppointment.emit(appointment.$key)">
                         <md-icon>delete</md-icon>
@@ -33,9 +33,9 @@ export class DayDetailComponent {
     @Output() public updateAppointment = new EventEmitter<Appointment>();
     @Output() public removeAppointment = new EventEmitter<Appointment>();
 
+    editMode = false;
 
     add(): void{
         this.addAppointment.emit(moment(this.date).toDate());
     }
-
 }

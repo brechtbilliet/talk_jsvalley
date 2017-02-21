@@ -1,14 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { Appointment } from '../../types/appointment.type';
-import { ReplaySubject, Observable } from 'rxjs';
 import * as moment from 'moment';
 import { DayWithAppointments } from '../../types/day-with-appointments.type';
 @Component({
     selector: 'week-view',
     template: `
+        <h2>Week: {{week}}/{{year}}</h2>
         <table>
             <tr>
-                <td *ngFor="let day of (days$|async)">
+                <td *ngFor="let day of days">
                     <day-detail
                             (addAppointment)="addAppointment.emit(Date)"
                             (removeAppointment)="removeAppointment.emit($event)"
@@ -31,36 +31,24 @@ export class WeekViewComponent implements OnChanges {
     @Output() public updateAppointment = new EventEmitter<Appointment>();
     @Output() public removeAppointment = new EventEmitter<Appointment>();
 
-    week$ = new ReplaySubject<number>();
-    year$ = new ReplaySubject<number>();
-    appointments$ = new ReplaySubject<Array<Appointment>>();
-
-
-    days$ = Observable.combineLatest([this.week$, this.year$, this.appointments$],
-        (week: number, year: number, appointments: Array<Appointment>) => {
-            let days: Array<DayWithAppointments> = [];
-            let momentWeek = moment().year(year).week(week);
-            for (let i = 0; i < 7; i++) {
-                let sunday = momentWeek.startOf("week");
-                days.push({
-                    date: sunday.add(i, "days").toDate(),
-                    appointments: appointments.filter((appointment: Appointment) => {
-                        return moment().year(year).week(week).weekday(i).date() === moment(appointment.date).date();
-                    })
-                });
-            }
-            return days;
-        });
+    days: Array<DayWithAppointments> = [];
 
     ngOnChanges(simpleChanges: any): void {
-        if (simpleChanges.week && this.week) {
-            this.week$.next(this.week);
+        if(this.week && this.year){
+            this.days = this.calculateDaysWithAppointments(this.week, this.year, this.appointments || []);
         }
-        if (simpleChanges.year && this.year) {
-            this.year$.next(this.year);
-        }
-        if (simpleChanges.appointments && this.appointments) {
-            this.appointments$.next(this.appointments);
-        }
+    }
+
+    private calculateDaysWithAppointments(week: number, year: number, appointments: Array<Appointment>): Array<DayWithAppointments>{
+        let sundayM = moment().year(year).week(week).startOf("week");
+        return Array.from({length: 7}, () => null)
+            .map((val, i) => {
+                return {
+                    date: sundayM.add(i, "days").toDate(),
+                    appointments: appointments.filter((appointment: Appointment) => {
+                        return sundayM.weekday(i).date() === moment(appointment.date).date();
+                    })
+                }
+            });
     }
 }
