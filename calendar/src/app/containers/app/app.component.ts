@@ -133,6 +133,6 @@ export class AppComponent {
     }
 
     onUpdateAppointment(appointment: Appointment): void {
-
+        this.af.database.object('appointments/' + appointment.$key).set({description: appointment.description, date: appointment.date});
     }
 }

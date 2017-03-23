@@ -8,7 +8,12 @@ import * as moment from 'moment';
     <md-card-content>
         <table>
             <tr *ngFor="let appointment of appointments;"  [mdTooltipPosition]="'before'" mdTooltip="{{appointment.description}}">
-                <td (click)="editMode = true">{{appointment.date|date: "hh:mm"}}</td>
+                <td (click)="editMode = true">
+                    <md-input-container class="example-full-width">
+                        <input mdInput [(ngModel)]="appointment.description" (change)="update(appointment, appointment.$key)">
+                    </md-input-container>
+                    {{appointment.date|date: "hh:mm"}}
+                </td>
                 <td>
                     <button md-mini-fab color="warn" (click)="removeAppointment.emit(appointment.$key)">
                         <md-icon>delete</md-icon>
@@ -37,5 +42,9 @@ export class DayDetailComponent {
 
     add(): void{
         this.addAppointment.emit(moment(this.date).toDate());
+    }
+
+    update(appointment: Appointment, $key: string){
+        this.updateAppointment.emit(Object.assign({$key}, appointment));
     }
 }

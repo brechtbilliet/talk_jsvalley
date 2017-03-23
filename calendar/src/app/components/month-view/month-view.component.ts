@@ -41,7 +41,6 @@ export class MonthViewComponent implements OnChanges {
     }
 
     private calculateMonthWithAppointments(month: number, year: number, appointments: Array<Appointment>): Array<Array<DayWithAppointments>> {
-        console.log(appointments);
         const dayOneM = moment().year(year).month(month).date(1);
         const days = Array.from({length: dayOneM.daysInMonth()}, (value, key) => key + 1);
         let res = _.groupBy(days, ((day: number) => moment().year(year).month(month).date(day).week()));

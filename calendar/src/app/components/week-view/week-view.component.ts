@@ -10,7 +10,7 @@ import { DayWithAppointments } from '../../types/day-with-appointments.type';
             <tr>
                 <td *ngFor="let day of days">
                     <day-detail
-                            (addAppointment)="addAppointment.emit(Date)"
+                            (addAppointment)="addAppointment.emit($event)"
                             (removeAppointment)="removeAppointment.emit($event)"
                             (updateAppointment)="updateAppointment.emit($event)"
                             [date]="day?.date"
