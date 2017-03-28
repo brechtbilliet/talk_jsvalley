@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { Appointment } from '../../types/appointment.type';
 import * as moment from 'moment';
 import { DayWithAppointments } from '../../types/day-with-appointments.type';
@@ -19,8 +19,8 @@ import { DayWithAppointments } from '../../types/day-with-appointments.type';
                 </td>
             </tr>
         </table>
-                
-`
+
+    `
 })
 export class WeekViewComponent implements OnChanges {
     @Input() week: number;
@@ -34,19 +34,19 @@ export class WeekViewComponent implements OnChanges {
     days: Array<DayWithAppointments> = [];
 
     ngOnChanges(simpleChanges: any): void {
-        if(this.week && this.year){
+        if (this.week && this.year) {
             this.days = this.calculateDaysWithAppointments(this.week, this.year, this.appointments || []);
         }
     }
 
-    private calculateDaysWithAppointments(week: number, year: number, appointments: Array<Appointment>): Array<DayWithAppointments>{
+    private calculateDaysWithAppointments(week: number, year: number, appointments: Array<Appointment>): Array<DayWithAppointments> {
         let sundayM = moment().year(year).week(week).startOf("week");
         return Array.from({length: 7}, () => null)
             .map((val, i) => {
                 return {
-                    date: sundayM.add(i, "days").toDate(),
-                    appointments: appointments.filter((appointment: Appointment) => {
-                        return sundayM.weekday(i).date() === moment(appointment.date).date();
+                    date: i > 0 ? moment(sundayM.toDate()).add(i, "days").toDate() : sundayM.toDate(),
+                    appointments:  appointments.filter((appointment: Appointment) => {
+                        return moment(sundayM.toDate()).weekday(i).date() === moment(appointment.date).date();
                     })
                 }
             });
