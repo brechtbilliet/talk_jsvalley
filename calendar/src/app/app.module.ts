@@ -1,3 +1,4 @@
+import 'rxjs';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +11,7 @@ import { MonthViewComponent } from './components/month-view/month-view.component
 import { DayDetailComponent } from './components/day-detail/day-detail.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
 import { AngularFireModule, AuthProviders, AuthMethods } from 'angularfire2';
+
 
 export const firebaseConfig = {
     apiKey: "AIzaSyCepO_WGqPwAXqEWIGnC9lgxBaiox7pGa4",

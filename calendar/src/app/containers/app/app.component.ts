@@ -2,51 +2,53 @@ import { Component } from '@angular/core';
 import { VIEW_MODE } from '../../constants';
 import * as moment from 'moment';
 import { Appointment } from '../../types/appointment.type';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 import { AngularFire } from 'angularfire2';
 import Moment = moment.Moment;
+
 
 @Component({
     selector: 'app-root',
     template: `
-<topbar
-    (next)="onNext()"
-    (previous)="onPrevious()"
-    (setViewMode)="onSetViewMode($event)"
-    (searchChanged)="onSearchChanged($event)"
-></topbar>
-<div [ngSwitch]="viewMode$|async">
-    <day-view 
-        *ngSwitchCase="VIEW_MODE.DAY"
-        [appointments]="filteredAppointments$|async"
-        [date]="currentDate$|async"
-        (removeAppointment)="onRemoveAppointment($event)"
-        (addAppointment)="onAddAppointment($event)"
-        (updateAppointment)="onUpdateAppointment($event)"
-        >
-    </day-view>
-    <week-view 
-        *ngSwitchCase="VIEW_MODE.WEEK"
-        [appointments]="filteredAppointments$|async"
-        [year]="currentYear$|async"
-        [week]="currentWeek$|async"
-        (removeAppointment)="onRemoveAppointment($event)"
-        (addAppointment)="onAddAppointment($event)"
-        (updateAppointment)="onUpdateAppointment($event)"
-        >
-    </week-view>
-    <month-view 
-        *ngSwitchCase="VIEW_MODE.MONTH" 
-        [month]="currentMonth$|async" 
-        [year]="currentYear$|async"
-        [appointments]="filteredAppointments$|async"
-        (removeAppointment)="onRemoveAppointment($event)"
-        (addAppointment)="onAddAppointment($event)"
-        (updateAppointment)="onUpdateAppointment($event)"
-        >
-    </month-view>
-</div>
-`,
+        <topbar
+                (next)="onNext()"
+                (previous)="onPrevious()"
+                (setViewMode)="onSetViewMode($event)"
+                (searchChanged)="onSearchChanged($event)"
+        ></topbar>
+        <div [ngSwitch]="viewMode$|async">
+            <day-view
+                    *ngSwitchCase="VIEW_MODE.DAY"
+                    [appointments]="filteredAppointments$|async"
+                    [date]="currentDate$|async"
+                    (removeAppointment)="onRemoveAppointment($event)"
+                    (addAppointment)="onAddAppointment($event)"
+                    (updateAppointment)="onUpdateAppointment($event)"
+            >
+            </day-view>
+            <week-view
+                    *ngSwitchCase="VIEW_MODE.WEEK"
+                    [appointments]="filteredAppointments$|async"
+                    [year]="currentYear$|async"
+                    [week]="currentWeek$|async"
+                    (removeAppointment)="onRemoveAppointment($event)"
+                    (addAppointment)="onAddAppointment($event)"
+                    (updateAppointment)="onUpdateAppointment($event)"
+            >
+            </week-view>
+            <month-view
+                    *ngSwitchCase="VIEW_MODE.MONTH"
+                    [month]="currentMonth$|async"
+                    [year]="currentYear$|async"
+                    [appointments]="filteredAppointments$|async"
+                    (removeAppointment)="onRemoveAppointment($event)"
+                    (addAppointment)="onAddAppointment($event)"
+                    (updateAppointment)="onUpdateAppointment($event)"
+            >
+            </month-view>
+        </div>
+    `,
 })
 export class AppComponent {
     VIEW_MODE = VIEW_MODE;
@@ -60,6 +62,7 @@ export class AppComponent {
     // -----(d)---------------------------------...
     // --------(+1)----(+1)----(-1)-------------...
     // -----d---d-------d-------d-----d----------...
+
     private currentDateM$ = this.viewMode$.flatMap((viewMode: string) => {
         let dateM = moment();
         return this.navigation$
@@ -80,7 +83,6 @@ export class AppComponent {
     currentYear$ = this.currentDateM$.map(dateM => dateM.year());
     currentMonth$ = this.currentDateM$.map(dateM => dateM.month());
     currentWeek$ = this.currentDateM$.map(dateM => dateM.week());
-
     appointments$ = this.af.database.list('/appointments');
     filteredAppointments$ = Observable.combineLatest([this.viewMode$, this.currentDateM$, this.appointments$, this.searchTerm$],
         (viewMode: string, currentDateM: Moment, appointments: Array<Appointment>, searchTerm: string) => {
@@ -133,6 +135,9 @@ export class AppComponent {
     }
 
     onUpdateAppointment(appointment: Appointment): void {
-        this.af.database.object('appointments/' + appointment.$key).set({description: appointment.description, date: appointment.date});
+        this.af.database.object('appointments/' + appointment.$key).set({
+            description: appointment.description,
+            date: appointment.date
+        });
     }
 }
