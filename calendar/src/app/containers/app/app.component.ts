@@ -17,11 +17,15 @@ import Moment = moment.Moment;
                 (setViewMode)="onSetViewMode($event)"
                 (searchChanged)="onSearchChanged($event)"
         ></topbar>
-        <div [ngSwitch]="viewMode$|async">
+        <p>currentDate: {{currentDateM$|async}}</p>
+        <p>viewMode: {{viewMode$|async}}</p>
+        <p>searchTerm: {{searchTerm$|async}}</p>
+        <p>appointments: {{appointments$|async|json}}</p>
+        <div [ngSwitch]="null">
             <day-view
                     *ngSwitchCase="VIEW_MODE.DAY"
-                    [appointments]="filteredAppointments$|async"
-                    [date]="currentDate$|async"
+                    [appointments]="[]"
+                    [date]="null"
                     (removeAppointment)="onRemoveAppointment($event)"
                     (addAppointment)="onAddAppointment($event)"
                     (updateAppointment)="onUpdateAppointment($event)"
@@ -29,9 +33,9 @@ import Moment = moment.Moment;
             </day-view>
             <week-view
                     *ngSwitchCase="VIEW_MODE.WEEK"
-                    [appointments]="filteredAppointments$|async"
-                    [year]="currentYear$|async"
-                    [week]="currentWeek$|async"
+                    [appointments]="[]"
+                    [year]="null"
+                    [week]="null"
                     (removeAppointment)="onRemoveAppointment($event)"
                     (addAppointment)="onAddAppointment($event)"
                     (updateAppointment)="onUpdateAppointment($event)"
@@ -39,9 +43,9 @@ import Moment = moment.Moment;
             </week-view>
             <month-view
                     *ngSwitchCase="VIEW_MODE.MONTH"
-                    [month]="currentMonth$|async"
-                    [year]="currentYear$|async"
-                    [appointments]="filteredAppointments$|async"
+                    [month]="null"
+                    [year]="null"
+                    [appointments]="[]"
                     (removeAppointment)="onRemoveAppointment($event)"
                     (addAppointment)="onAddAppointment($event)"
                     (updateAppointment)="onUpdateAppointment($event)"
@@ -63,7 +67,7 @@ export class AppComponent {
     // --------(+1)----(+1)----(-1)-------------...
     // -----d---d-------d-------d-----d----------...
 
-    private currentDateM$ = this.viewMode$.flatMap((viewMode: string) => {
+    currentDateM$ = this.viewMode$.flatMap((viewMode: string) => {
         let dateM = moment();
         return this.navigation$
             .map((action: number) => {
@@ -79,30 +83,9 @@ export class AppComponent {
             })
     }).publishReplay(1).refCount();
 
-    currentDate$ = this.currentDateM$.map(dateM => dateM.toDate());
-    currentYear$ = this.currentDateM$.map(dateM => dateM.year());
-    currentMonth$ = this.currentDateM$.map(dateM => dateM.month());
-    currentWeek$ = this.currentDateM$.map(dateM => dateM.week());
+
     appointments$ = this.af.database.list('/appointments');
-    filteredAppointments$ = Observable.combineLatest([this.viewMode$, this.currentDateM$, this.appointments$, this.searchTerm$],
-        (viewMode: string, currentDateM: Moment, appointments: Array<Appointment>, searchTerm: string) => {
-            switch (viewMode) {
-                case VIEW_MODE.MONTH:
-                    return appointments
-                        .filter(item => moment(item.date).format('MM/YYYY') === currentDateM.format('MM/YYYY'))
-                        .filter(item => this.filterByTerm(item, searchTerm));
-                case VIEW_MODE.WEEK:
-                    return appointments
-                        .filter(item => moment(item.date).format('ww/YYYY') === currentDateM.format('ww/YYYY'))
-                        .filter(item => this.filterByTerm(item, searchTerm));
-                case VIEW_MODE.DAY:
-                    return appointments
-                        .filter(item => moment(item.date).format('DD/MM/YYYY') === currentDateM.format('DD/MM/YYYY'))
-                        .filter(item => this.filterByTerm(item, searchTerm));
-
-            }
-        }).publishReplay(1).refCount();
-
+   
     constructor(private af: AngularFire) {
     }
 
